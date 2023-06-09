@@ -5,8 +5,15 @@ $db = new Database();
 $dbConn = $db->connect();
 session_start();
 
-if(isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
-    header('Location: dashboard.php');
+if(isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true 
+            && $_SESSION['role'] === 'Student') {
+    header('Location: studDashboard.php');
+    exit;
+}
+
+elseif(isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true 
+            && $_SESSION['role'] === 'Turor') {
+    header('Location: turorDashboard.php');
     exit;
 }
 
@@ -15,7 +22,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_PO
     $password = $_POST['password'];
 
     $sql = "SELECT id, password, email FROM users WHERE email = ?";
-    $stmt = $conn->prepare($sql);
+    $stmt = $dbConn->prepare($sql);
     $stmt->bind_param('s', $email);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -27,9 +34,17 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_PO
             $_SESSION['loggedin'] = true;
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['email'] = $user['email'];
+            
+            if($_POST['role'] === 'Student'){
+                $_SESSION['role'] = 'Student';
+                header('Location: studentDashboard.php');
+            }
 
-            header('Location: dashboard.php');
-            exit;
+            elseif($_POST['role'] === 'Tutor'){
+                $_SESSION['role'] = 'Tutor';
+                header('Location: tuturDashboard.php');
+            }
+
 
         }
     }
